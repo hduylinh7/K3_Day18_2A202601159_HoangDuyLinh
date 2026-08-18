@@ -7,6 +7,18 @@ load_dotenv()
 
 # --- API Keys ---
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+
+def get_llm_client():
+    """Return (OpenAI client, model_name) configured for Groq or OpenAI."""
+    api_key = GROQ_API_KEY or OPENAI_API_KEY
+    if not api_key or api_key.startswith("sk-..."):
+        return None, None
+    from openai import OpenAI
+    if GROQ_API_KEY or api_key.startswith("gsk_"):
+        return OpenAI(api_key=api_key, base_url="https://api.groq.com/openai/v1"), "llama-3.3-70b-versatile"
+    return OpenAI(api_key=api_key), "gpt-4o-mini"
 
 # --- Qdrant ---
 QDRANT_HOST = "localhost"
